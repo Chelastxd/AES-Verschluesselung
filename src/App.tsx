@@ -29,7 +29,7 @@ function App() {
         <div class = "input-box">
           <textarea onInput={(e) => {
             setText(e.currentTarget.value);
-            verschluesseln()
+            // verschluesseln()
           }}></textarea>
         </div>
         <div class = "key-box">

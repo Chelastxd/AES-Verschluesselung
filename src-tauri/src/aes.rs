@@ -75,7 +75,7 @@ impl AESKey {
     }
 
     fn key_expansion(&self) -> Vec<RoundKey> {
-        let rcon = vec![
+        let rcon = [
             0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f,
         ];
 
@@ -307,8 +307,6 @@ impl AESCipher {
 
         let mut decrypted_data = Vec::new();
 
-        println!("data len {}", data.len());
-
         for chunk in data.chunks_mut(16) {
             let mut chunk = chunk.to_vec();
             if chunk.len() < 16 {
@@ -337,8 +335,6 @@ impl AESCipher {
             }
 
             self.add_roundkey(0);
-
-            println!("womp {}", self.table.as_hex());
 
             for i in 0..4 {
                 for j in 0..4 {
