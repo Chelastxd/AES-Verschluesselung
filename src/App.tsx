@@ -5,30 +5,44 @@ import "./App.css";
 
 function App() {
 
-  const [input, setInput] = createSignal("");
+  const [text, setText] = createSignal("");
+  const [schluessel, setSchluessel] = createSignal("");
+  const [output, setOutput] = createSignal("");
 
-  async function buttonClick() {
-    let result: number = await invoke("add", { links: 1, rechts: 2 });
-    console.log(result);
+
+  async function verschluesseln() {
+    let result: string = await invoke("aes_verschluesseln", {klartext: text(), key: schluessel() });
+    setOutput(result);
+  }
+
+  async function entschluesseln() {
+    let result: string = await invoke("aes_entschluesseln", {geheimtext: text(), key: schluessel() });
+    setOutput(result);
   }
 
 
   return (
     <div>
-        <div class = "Heading">
-        Fabians toller Verschlüsselungsapparat :)
+        <div class = "heading">
+        Fabians toller AES-Verschlüsselungsapparat :)
         </div>
-        <div class = "Input-Box">
-          <input ></input>
+        <div class = "input-box">
+          <textarea onInput={(e) => {
+            setText(e.currentTarget.value);
+            verschluesseln()
+          }}></textarea>
         </div>
-        <div class = "Key-Box">
-          <input></input>
+        <div class = "key-box">
+          <input onInput={(e) => setSchluessel(e.currentTarget.value)}></input>
         </div>
-        <div class = "Button">
-          <button onClick={buttonClick}>VERSCHLÜSSELN</button>
+        <div class = "Buttons">
+          <span>
+          <button class="encrButton"onClick={verschluesseln}>VERSCHLÜSSELN</button>
+          <button class="decrButton"onClick={entschluesseln}>ENTSCHLUESSELN</button>
+          </span>
         </div>
-        <div class = "Output-Box">
-          <input disabled={true}></input>
+        <div class = "output-box">
+          <textarea value={output()} readOnly={true}></textarea>
         </div>
     </div>
   );

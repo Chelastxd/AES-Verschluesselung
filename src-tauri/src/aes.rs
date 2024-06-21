@@ -1,4 +1,4 @@
-
+// S-Box fur sub_bytes
 const SBOX: [[u8; 16]; 16] = [
     [0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76],
     [0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0],
@@ -18,6 +18,7 @@ const SBOX: [[u8; 16]; 16] = [
     [0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16],
 ];
 
+// inverse S-Box for inv_sub_bytes
 const INV_SBOX: [[u8; 16]; 16] = [
     [0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb],
     [0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb],
@@ -37,7 +38,7 @@ const INV_SBOX: [[u8; 16]; 16] = [
     [0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d],
 ];
 
-
+//type definition - 4x4 boxes/tables
 type AESTable = [[u8; 4]; 4];
 type RoundKey = [[u8; 4]; 4];
 
@@ -74,7 +75,7 @@ impl AESKey {
     }
 
     fn key_expansion(&self) -> Vec<RoundKey> {
-        let mut rcon = vec![
+        let rcon = vec![
             0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f,
         ];
 
@@ -89,7 +90,7 @@ impl AESKey {
             col
         }).collect();
 
-        for i in 0..4 { // TODO: skibidi
+        for i in 0..4 {
             w.push(key_cols[i]);
         }
         
@@ -123,8 +124,6 @@ impl AESKey {
             }
             round_keys.push(round_key);
         }
-
-        // assert_eq!()
 
         round_keys
     }
@@ -175,6 +174,7 @@ impl AESCipher {
         self.table[3].rotate_right(3);
     }
 
+    //https://dkblackley.github.io/posts/rust-aes/ (angepasst)
     fn mix_columns(&mut self) {
         let mds = [
             [0x02, 0x03, 0x01, 0x01],
@@ -212,6 +212,7 @@ impl AESCipher {
         }
     }
 
+    //https://dkblackley.github.io/posts/rust-aes/ (angepasst)
     fn inv_mix_columns(&mut self) {
         let mds = [
             [14, 11, 13, 9],
@@ -275,24 +276,20 @@ impl AESCipher {
                 [chunk[3], chunk[7], chunk[11], chunk[15]],
             ];
             
-            // println!("before: {}", self.table.as_hex());
             self.add_roundkey(0);
             
             for round in 1..rounds {
-                // println!("Round: {}", round);
-                // println!("round input: {}", self.table.as_hex());
 
                 self.sub_bytes();
-                // println!("sub_bytes: {}", self.table.as_hex());
+
                 self.rotate_rows();
-                // println!("rotate_rows: {}", self.table.as_hex());
+
                 if round != rounds - 1 {
                     self.mix_columns();
-                    // println!("mix_columns: {}", self.table.as_hex());
                 }
-                // println!("round key: {}", self.round_keys[round].as_hex());
+
                 self.add_roundkey(round);
-                // println!("after round key: {}", self.table.as_hex());
+
             }
 
             for i in 0..4 {
@@ -310,9 +307,10 @@ impl AESCipher {
 
         let mut decrypted_data = Vec::new();
 
+        println!("data len {}", data.len());
+
         for chunk in data.chunks_mut(16) {
             let mut chunk = chunk.to_vec();
-            // println!("")
             if chunk.len() < 16 {
                 chunk.resize(16, 0);
             }
@@ -325,17 +323,22 @@ impl AESCipher {
             ];
             
             for round in (1..rounds).rev() {
+
                 self.add_roundkey(round);
+
                 if round != (rounds - 1) {
                     self.inv_mix_columns();
                 }
+
                 self.inv_sub_bytes();
+
                 self.inv_rotate_rows();
+
             }
 
             self.add_roundkey(0);
 
-            println!("{}", self.table.as_hex());
+            println!("womp {}", self.table.as_hex());
 
             for i in 0..4 {
                 for j in 0..4 {
@@ -344,7 +347,7 @@ impl AESCipher {
             }
         }
         
-        decrypted_data
+        return decrypted_data
     }
 }
 
@@ -366,6 +369,7 @@ fn multiply_gf(mut a: u8, mut b: u8) -> u8 {
     return p;
 }
 
+// additional utility-method for Tables
 trait TableExt {
     fn as_hex(&self) -> String;
 }
@@ -377,12 +381,12 @@ impl TableExt for AESTable {
             for j in 0..4 {
                 result.push_str(&format!("{:02x} ", self[j][i]));
             }
-            // result.push_str("\n");
         }
-        result
+        return result
     }
 }
 
+// additional utility-methods for [u8;4]-Arrays
 trait ArrayExt {
     fn rotate_left(&mut self, n: usize);
     fn rotate_right(&mut self, n: usize);
@@ -416,7 +420,7 @@ impl ArrayExt for [u8; 4] {
         for i in 0..4 {
             result[i] = self[i] ^ other[i];
         }
-        result
+        return result
     }
 
     fn to_u32(&self) -> u32 {
@@ -424,28 +428,6 @@ impl ArrayExt for [u8; 4] {
         for i in 0..4 {
             result = result << 8 | self[i] as u32;
         }
-        result
+        return result
     }
 }
-
-
-
-// fn key_expansion() {
-
-// }
-
-// fn sub_bytes() {
-
-// }
-
-// fn shift_rows() {
-
-// }
-
-// fn mix_columns() {
-
-// }
-
-// fn add_roundkey() {
-    
-// }

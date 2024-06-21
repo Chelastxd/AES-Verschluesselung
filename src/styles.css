@@ -4,12 +4,66 @@
   line-height: 24px;
   font-weight: 400;
 
-  color: #0f0f0f;
-  background-color: #f6f6f6;
+  color: #d8e24f;
+  background-color: #383838;
+
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+.heading {
+  display: flex;
+  justify-content: center;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  font-size: 32px;
+}
+
+textarea {
+  width: 400px;
+  background-color: #1f1f1f;
+  color:#d8e24f
+}
+
+input {
+  background-color: #1b1b1b;
+  color:#d8e24f
+}
+
+.Buttons {
+  display: flex;
+  justify-content: center;
+}
+
+button {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.encrButton {
+  background-color: rgb(141, 255, 137);
+}
+.decrButton {
+  background-color: rgb(255, 137, 137);
+}
+
+.key-box {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.input-box {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.output-box {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
