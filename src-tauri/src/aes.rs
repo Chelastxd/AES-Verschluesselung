@@ -162,13 +162,13 @@ impl AESCipher {
         }
     }
 
-    fn rotate_rows(&mut self) {
+    fn shift_rows(&mut self) {
         self.table[1].rotate_left(1);
         self.table[2].rotate_left(2);
         self.table[3].rotate_left(3);
     }
 
-    fn inv_rotate_rows(&mut self) {
+    fn inv_shift_rows(&mut self) {
         self.table[1].rotate_right(1);
         self.table[2].rotate_right(2);
         self.table[3].rotate_right(3);
@@ -282,7 +282,7 @@ impl AESCipher {
 
                 self.sub_bytes();
 
-                self.rotate_rows();
+                self.shift_rows();
 
                 if round != rounds - 1 {
                     self.mix_columns();
@@ -330,7 +330,7 @@ impl AESCipher {
 
                 self.inv_sub_bytes();
 
-                self.inv_rotate_rows();
+                self.inv_shift_rows();
 
             }
 
